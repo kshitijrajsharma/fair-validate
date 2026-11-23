@@ -2,7 +2,7 @@ import { fileUrl, getProject, guestId } from "./api";
 import { bindGestures } from "./gestures";
 import { gestureHint } from "./hint";
 import { icons } from "./icons";
-import { classColors, drawTile } from "./render";
+import { drawTile } from "./render";
 import { drawResults } from "./results";
 import { saveAnswer, type Answer } from "./store";
 import { answered } from "./sync";
@@ -53,18 +53,8 @@ export async function validateScreen(
     project.type === "training" ? tiles.classes() : undefined,
   ]);
   if (!current()) return;
-  const classes =
-    found && found.values.length > 1
-      ? classColors(found.property, found.values)
-      : undefined;
-  const legend = classes
-    ? `<ul class="classes" id="classes">${[...classes.colors]
-        .map(
-          ([value, color]) =>
-            `<li data-class="${escape(value)}"><i style="background:${color}"></i>${escape(value.replaceAll("_", " ").replaceAll(";", " + "))}</li>`,
-        )
-        .join("")}</ul>`
-    : "";
+  const classes = found && found.values.length > 1 ? found : undefined;
+  const legend = classes ? `<ul class="classes" id="classes"></ul>` : "";
   const byId = new Map(list.map((tile) => [tile.id, tile]));
   const answers = new Map<number, boolean>(
     mine.map((a) => [a.tileId, a.valid]),
@@ -205,10 +195,14 @@ export async function validateScreen(
       tiles.get("labels", tile),
     ]);
     if (!imagery) throw new Error("This tile has no imagery");
-    const drawn = await drawTile(canvas, imagery, vectors, labels, classes);
+    const colors = await drawTile(canvas, imagery, vectors, labels, classes);
     if (classes && labels)
-      for (const item of app.querySelectorAll<HTMLElement>("#classes li"))
-        item.classList.toggle("absent", !drawn.has(item.dataset.class ?? ""));
+      $("#classes").innerHTML = [...colors]
+        .map(
+          ([value, color]) =>
+            `<li><i style="background:${color}"></i>${escape(value.replaceAll("_", " ").replaceAll(";", " + "))}</li>`,
+        )
+        .join("");
     tileBox.classList.remove("loading");
     $("#tile-id").textContent = `${tile.z}/${tile.x}/${tile.y}`;
     const prior = answers.get(tile.id);

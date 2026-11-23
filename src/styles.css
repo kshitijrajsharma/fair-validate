@@ -622,6 +622,7 @@ a:focus-visible {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px 14px;
+  min-height: 20px;
   font-size: 13px;
   line-height: 20px;
   color: var(--dark);
@@ -631,10 +632,6 @@ a:focus-visible {
   align-items: center;
   gap: 6px;
   white-space: nowrap;
-  transition: opacity 0.12s ease;
-}
-.classes li.absent {
-  opacity: 0.35;
 }
 .classes i {
   width: 12px;
