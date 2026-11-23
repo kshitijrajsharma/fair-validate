@@ -614,6 +614,34 @@ a:focus-visible {
   color: var(--gray);
   background: var(--surface);
 }
+.classes {
+  list-style: none;
+  margin: 10px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+  font-size: 13px;
+  line-height: 20px;
+  color: var(--dark);
+}
+.classes li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: opacity 0.12s ease;
+}
+.classes li.absent {
+  opacity: 0.35;
+}
+.classes i {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
 .nav {
   display: flex;
   justify-content: center;

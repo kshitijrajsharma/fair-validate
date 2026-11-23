@@ -11,6 +11,15 @@ export type Tile = {
 };
 export type Layer = "imagery" | "labels";
 
+export type LabelClasses = { property: string; values: string[] };
+
+// tippecanoe writes each attribute's distinct values into the PMTiles metadata as tilestats.
+type LabelsMetadata = {
+  tilestats?: {
+    layers: { attributes: { attribute: string; values: unknown[] }[] }[];
+  };
+};
+
 const SIGNED_URL_LIFETIME_MS = 10 * 60 * 1000;
 const READ_TIMEOUT_MS = 10_000;
 
@@ -102,6 +111,22 @@ export class ProjectTiles {
         throw error;
     }
     return fetched.data;
+  }
+
+  async classes(): Promise<LabelClasses> {
+    const key = `${this.projectId}/classes`;
+    const saved = await getTile(key);
+    if (saved) return JSON.parse(new TextDecoder().decode(saved));
+    const metadata = (await this.files.labels.getMetadata()) as LabelsMetadata;
+    const attribute = metadata.tilestats?.layers[0]?.attributes[0];
+    const found: LabelClasses = attribute
+      ? {
+          property: attribute.attribute,
+          values: attribute.values.map(String).sort(),
+        }
+      : { property: "", values: [] };
+    await putTile(key, new TextEncoder().encode(JSON.stringify(found)).buffer);
+    return found;
   }
 
   async save(tile: Tile): Promise<boolean> {

@@ -2,7 +2,7 @@ import { fileUrl, getProject, guestId } from "./api";
 import { bindGestures } from "./gestures";
 import { gestureHint } from "./hint";
 import { icons } from "./icons";
-import { drawTile } from "./render";
+import { classColors, drawTile } from "./render";
 import { drawResults } from "./results";
 import { saveAnswer, type Answer } from "./store";
 import { answered } from "./sync";
@@ -48,8 +48,23 @@ export async function validateScreen(
   app.innerHTML = `${bar("", `#/p/${id}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(22)}<span class="skeleton tile"></span><div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
   const project = await getProject(id);
   const tiles = new ProjectTiles(project.id, fileUrl(project.id));
-  const { list, bits, mine } = await progress(project);
+  const [{ list, bits, mine }, found] = await Promise.all([
+    progress(project),
+    project.type === "training" ? tiles.classes() : undefined,
+  ]);
   if (!current()) return;
+  const classes =
+    found && found.values.length > 1
+      ? classColors(found.property, found.values)
+      : undefined;
+  const legend = classes
+    ? `<ul class="classes" id="classes">${[...classes.colors]
+        .map(
+          ([value, color]) =>
+            `<li data-class="${escape(value)}"><i style="background:${color}"></i>${escape(value.replaceAll("_", " ").replaceAll(";", " + "))}</li>`,
+        )
+        .join("")}</ul>`
+    : "";
   const byId = new Map(list.map((tile) => [tile.id, tile]));
   const answers = new Map<number, boolean>(
     mine.map((a) => [a.tileId, a.valid]),
@@ -71,6 +86,7 @@ export async function validateScreen(
           <div class="coach" id="hint" hidden><span class="tile-id" id="tile-id"></span><span class="finger" id="finger"></span><span class="finger-label" id="finger-label">Yes</span></div>
           <div class="message" id="message" hidden></div>
         </div>
+        ${legend}
         <div class="nav">
           <button id="previous" aria-label="Previous tile">${icons.chevron}</button>
           <button id="help" aria-label="Show how to answer">${icons.info}</button>
@@ -189,7 +205,10 @@ export async function validateScreen(
       tiles.get("labels", tile),
     ]);
     if (!imagery) throw new Error("This tile has no imagery");
-    await drawTile(canvas, imagery, vectors, labels);
+    const drawn = await drawTile(canvas, imagery, vectors, labels, classes);
+    if (classes && labels)
+      for (const item of app.querySelectorAll<HTMLElement>("#classes li"))
+        item.classList.toggle("absent", !drawn.has(item.dataset.class ?? ""));
     tileBox.classList.remove("loading");
     $("#tile-id").textContent = `${tile.z}/${tile.x}/${tile.y}`;
     const prior = answers.get(tile.id);
