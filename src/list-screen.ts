@@ -1,0 +1,54 @@
+import { listProjects } from "./api";
+import { icons } from "./icons";
+import { tileKeys } from "./store";
+import {
+  app,
+  bar,
+  escape,
+  meter,
+  networkPill,
+  progress,
+  remember,
+  skeleton,
+  tileCount,
+  type Current,
+} from "./ui";
+
+export async function listScreen(current: Current): Promise<void> {
+  app.innerHTML = `${bar("Validate", null, networkPill())}<section class="scroll" id="list" aria-busy="true">${skeleton(96, 96)}</section>`;
+  const list = app.querySelector("#list") as HTMLElement;
+  const projects = await listProjects();
+  if (!current()) return;
+  list.removeAttribute("aria-busy");
+  if (!projects.length) {
+    list.innerHTML = `<p class="empty">Nothing to check right now. Come back later.</p>`;
+    return;
+  }
+  list.innerHTML = projects
+    .map(
+      (project) => `<a class="card" href="#/p/${project.id}">
+        <h2>${project.type === "prediction" ? icons.category : icons.building}${escape(project.title)}</h2>
+        <div data-progress="${project.id}">${meter(0, 1)}<div class="meta"><span>&nbsp;</span></div></div></a>`,
+    )
+    .join("");
+  for (const project of projects) {
+    const slot = list.querySelector(
+      `[data-progress="${project.id}"]`,
+    ) as HTMLElement;
+    const saved = (await tileKeys(`${project.id}/imagery/`)).length;
+    progress(project).then(
+      ({ list, done }) => {
+        const status =
+          project.status === "finished"
+            ? `<span class="status done">${icons.check}Finished</span>`
+            : saved && remember(`offline-${project.id}`) === "on"
+              ? `<span class="status">${icons.cloudDownload}Saved offline</span>`
+              : "<span></span>";
+        slot.innerHTML = `${meter(done, list.length)}<div class="meta"><span>${done.toLocaleString()} of ${tileCount(list.length)}</span>${status}</div>`;
+      },
+      (error: Error) => {
+        slot.innerHTML = `<p class="note">${escape(error.message)}</p>`;
+      },
+    );
+  }
+}

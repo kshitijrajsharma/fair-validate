@@ -1,0 +1,9 @@
+repos:
+  - repo: local
+    hooks:
+      - id: oxfmt
+        name: oxfmt
+        entry: oxfmt --write
+        language: node
+        additional_dependencies: ["oxfmt@0.35.0"]
+        files: \.(js|ts|json|css|html|md|yml)$
