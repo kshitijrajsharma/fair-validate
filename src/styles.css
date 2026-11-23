@@ -577,16 +577,6 @@ a:focus-visible {
   font-weight: 700;
   pointer-events: none;
 }
-.coach .tile-id {
-  position: absolute;
-  top: 8px;
-  left: 10px;
-  font:
-    500 11px ui-monospace,
-    Menlo,
-    monospace;
-  opacity: 0.85;
-}
 .finger {
   z-index: 1;
   position: absolute;
@@ -600,20 +590,86 @@ a:focus-visible {
   box-shadow: 0 0 0 7px rgba(255, 255, 255, 0.25);
   transition: transform 0.7s cubic-bezier(0.3, 0.7, 0.3, 1);
 }
-.finger-label {
+.coach .pill {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 999px;
+  background: var(--surface);
+  color: var(--dark);
+  font-size: 15px;
+  opacity: 0.5;
+  transition:
+    opacity 0.2s ease,
+    transform 0.2s ease;
+}
+.coach .pill svg {
+  width: 12px;
+  height: 12px;
+}
+.coach .yes {
+  right: 12px;
+  top: 50%;
+  translate: 0 -50%;
+  background: var(--green);
+  color: var(--surface);
+}
+.coach .yes svg {
+  rotate: -90deg;
+}
+.coach .no {
+  left: 12px;
+  top: 50%;
+  translate: 0 -50%;
+  background: var(--primary);
+  color: var(--surface);
+}
+.coach .no svg {
+  rotate: 90deg;
+}
+.coach .next {
+  top: 12px;
+  left: 50%;
+  translate: -50% 0;
+}
+.coach .next svg {
+  rotate: 180deg;
+}
+.coach .back {
+  bottom: 12px;
+  left: 50%;
+  translate: -50% 0;
+}
+.coach .pill.on {
+  opacity: 1;
+  transform: scale(1.1);
+}
+.coach-text {
   position: absolute;
   left: 50%;
   top: 50%;
-  transform: translate(-50%, 26px);
+  translate: -50% 34px;
   font-size: 14px;
-  padding: 2px 12px;
-  border-radius: 16px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+.coach-text.on {
+  opacity: 1;
+}
+.hint-done {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  pointer-events: auto;
+  border: 0;
+  border-radius: 8px;
+  padding: 6px 14px;
   background: var(--surface);
   color: var(--dark);
-  white-space: nowrap;
-}
-.finger-label.above {
-  transform: translate(-50%, -54px);
+  font: 600 14px var(--font-body);
 }
 .message {
   position: absolute;

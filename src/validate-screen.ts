@@ -79,7 +79,11 @@ export async function validateScreen(
       <div class="stage">
         <p class="question">${escape(question(project.description))}</p>
         <div class="tile loading" id="tile"><canvas id="canvas" width="512" height="512"></canvas><div class="tint" id="tint"></div><div class="stamp" id="stamp" aria-hidden="true"></div>
-          <div class="coach" id="hint" hidden><span class="tile-id" id="tile-id"></span><span class="finger" id="finger"></span><span class="finger-label" id="finger-label">Yes</span></div>
+          <div class="coach" id="hint" hidden>
+            <span class="pill yes" data-step="right">Yes ${icons.chevron}</span><span class="pill no" data-step="left">${icons.chevron} No</span>
+            <span class="pill next" data-step="up">${icons.chevron} Next</span><span class="pill back" data-step="down">${icons.chevron} Back</span>
+            <span class="finger" id="finger"></span>
+            <span class="coach-text" data-step="hold">Hold to hide the outlines</span><button class="hint-done" id="hint-done">Got it</button></div>
           <div class="message" id="message" hidden></div>
         </div>
         ${legend}
@@ -210,7 +214,6 @@ export async function validateScreen(
         )
         .join("");
     tileBox.classList.remove("loading");
-    $("#tile-id").textContent = `${tile.z}/${tile.x}/${tile.y}`;
     const prior = answers.get(tile.id);
     yes.setAttribute("aria-pressed", String(prior === true));
     no.setAttribute("aria-pressed", String(prior === false));

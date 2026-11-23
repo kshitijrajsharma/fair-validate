@@ -1,31 +1,31 @@
 import { remember } from "./ui";
 
-const STEPS: [string, string, string][] = [
-  ["translateX(70px)", "Yes", "var(--green)"],
-  ["translateX(-70px)", "No", "var(--primary)"],
-  ["translateY(-70px)", "Next", ""],
-  ["translateY(70px)", "Previous", ""],
-  ["scale(1.35)", "Hold: imagery only", ""],
+const STEPS: [string, (reach: number) => string][] = [
+  ["right", (reach) => `translateX(${reach}px)`],
+  ["left", (reach) => `translateX(${-reach}px)`],
+  ["up", (reach) => `translateY(${-reach}px)`],
+  ["down", (reach) => `translateY(${reach}px)`],
+  ["hold", () => "scale(1.5)"],
 ];
 
 export function gestureHint(hint: HTMLElement) {
   const finger = hint.querySelector(".finger") as HTMLElement;
-  const label = hint.querySelector(".finger-label") as HTMLElement;
+  const targets = [...hint.querySelectorAll<HTMLElement>("[data-step]")];
   let demo: ReturnType<typeof setInterval> | undefined;
 
   const show = () => {
     hint.hidden = false;
     let step = 0;
     clearInterval(demo);
-    demo = setInterval(() => {
-      const [transform, text, color] = STEPS[step++ % STEPS.length];
-      finger.style.transform = transform;
-      label.textContent = text;
-      label.style.background = color || "var(--surface)";
-      label.style.color = color ? "var(--surface)" : "var(--dark)";
-      label.classList.toggle("above", text === "Previous");
-      setTimeout(() => (finger.style.transform = "none"), 900);
-    }, 1600);
+    const play = () => {
+      const [name, transform] = STEPS[step++ % STEPS.length];
+      for (const target of targets)
+        target.classList.toggle("on", target.dataset.step === name);
+      finger.style.transform = transform(hint.clientWidth * 0.17);
+      setTimeout(() => (finger.style.transform = "none"), 1000);
+    };
+    play();
+    demo = setInterval(play, 1700);
   };
 
   const hide = () => {
@@ -34,6 +34,8 @@ export function gestureHint(hint: HTMLElement) {
     clearInterval(demo);
     remember("hint-seen", "yes");
   };
+
+  hint.querySelector("#hint-done")?.addEventListener("click", hide);
 
   return {
     show,
