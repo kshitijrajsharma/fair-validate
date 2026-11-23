@@ -50,7 +50,13 @@ export async function validateScreen(
   const tiles = new ProjectTiles(project.id, fileUrl(project.id));
   const [{ list, bits, mine }, found] = await Promise.all([
     progress(project),
-    project.type === "training" ? tiles.classes() : undefined,
+    project.type === "training"
+      ? tiles.classes().catch((error: unknown) => {
+          // Offline before the classes were ever fetched, outlines stay red.
+          if (!unreachable(error)) throw error;
+          return undefined;
+        })
+      : undefined,
   ]);
   if (!current()) return;
   const classes = found && found.values.length > 1 ? found : undefined;

@@ -13,19 +13,20 @@ const CLASS_COLORS = [
   "#2c3038",
 ];
 
-// Colours stay fixed per class while they suffice; past that, only the tile's own classes share them.
-function classColors(
+// Each class keeps its own colour; a tile whose classes share one moves the later class to the next free colour.
+export function classColors(
   classes: LabelClasses,
   present: string[],
 ): Map<string, string> {
-  const fixed = classes.values.length <= CLASS_COLORS.length;
+  const taken = new Set<number>();
   return new Map(
-    present.map((value, index) => [
-      value,
-      CLASS_COLORS[
-        (fixed ? classes.values.indexOf(value) : index) % CLASS_COLORS.length
-      ],
-    ]),
+    present.map((value) => {
+      let slot = classes.values.indexOf(value) % CLASS_COLORS.length;
+      while (taken.has(slot) && taken.size < CLASS_COLORS.length)
+        slot = (slot + 1) % CLASS_COLORS.length;
+      taken.add(slot);
+      return [value, CLASS_COLORS[slot]];
+    }),
   );
 }
 

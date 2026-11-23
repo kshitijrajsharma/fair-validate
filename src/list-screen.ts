@@ -8,6 +8,7 @@ import {
   meter,
   networkPill,
   progress,
+  question,
   remember,
   skeleton,
   tileCount,
@@ -28,6 +29,7 @@ export async function listScreen(current: Current): Promise<void> {
     .map(
       (project) => `<a class="card" href="#/p/${project.id}">
         <h2>${project.type === "prediction" ? icons.category : icons.building}${escape(project.title)}</h2>
+        <p class="summary">${escape(question(project.description))}</p>
         <div data-progress="${project.id}">${meter(0, 1)}<div class="meta"><span>&nbsp;</span></div></div></a>`,
     )
     .join("");

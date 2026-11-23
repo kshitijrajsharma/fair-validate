@@ -4,7 +4,6 @@ import { readTileList, unreachable, type Tile } from "./tiles";
 
 export type Project = {
   id: number;
-  source_id: string;
   type: "training" | "prediction";
   title: string;
   description: string;

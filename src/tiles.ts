@@ -14,7 +14,7 @@ export type Layer = "imagery" | "labels";
 export type LabelClasses = { property: string; values: string[] };
 
 // tippecanoe writes each attribute's distinct values into the PMTiles metadata as tilestats.
-type LabelsMetadata = {
+export type LabelsMetadata = {
   tilestats?: {
     layers: { attributes: { attribute: string; values: unknown[] }[] }[];
   };
@@ -33,6 +33,18 @@ export const unreachable = (error: unknown) =>
   error instanceof TypeError ||
   (error instanceof DOMException &&
     (error.name === "TimeoutError" || error.name === "AbortError"));
+
+// A dataset keeps one class property per label; labels with several properties (OSM tags) stay one colour.
+export function labelClasses(metadata: LabelsMetadata): LabelClasses {
+  if (!metadata.tilestats) throw new Error("labels.pmtiles has no tilestats");
+  const attributes = metadata.tilestats.layers[0]?.attributes ?? [];
+  return attributes.length === 1
+    ? {
+        property: attributes[0].attribute,
+        values: attributes[0].values.map(String).sort(),
+      }
+    : { property: "", values: [] };
+}
 
 class ProjectFileSource implements Source {
   private signed?: { url: string; at: number };
@@ -117,19 +129,25 @@ export class ProjectTiles {
     const key = `${this.projectId}/classes`;
     const saved = await getTile(key);
     if (saved) return JSON.parse(new TextDecoder().decode(saved));
-    const metadata = (await this.files.labels.getMetadata()) as LabelsMetadata;
-    const attribute = metadata.tilestats?.layers[0]?.attributes[0];
-    const found: LabelClasses = attribute
-      ? {
-          property: attribute.attribute,
-          values: attribute.values.map(String).sort(),
-        }
-      : { property: "", values: [] };
-    await putTile(key, new TextEncoder().encode(JSON.stringify(found)).buffer);
+    const found = labelClasses(
+      (await this.files.labels.getMetadata()) as LabelsMetadata,
+    );
+    try {
+      await putTile(
+        key,
+        new TextEncoder().encode(JSON.stringify(found)).buffer,
+      );
+    } catch (error) {
+      if (
+        !(error instanceof DOMException && error.name === "QuotaExceededError")
+      )
+        throw error;
+    }
     return found;
   }
 
   async save(tile: Tile): Promise<boolean> {
+    await this.classes();
     const imagery = await this.get("imagery", tile);
     if (!imagery) return false;
     await this.get("labels", tile);

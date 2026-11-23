@@ -5,6 +5,7 @@ import {
   countDone,
   countProgress,
   isDone,
+  labelClasses,
   readTileList,
   tileOrder,
 } from "./tiles";
@@ -85,5 +86,38 @@ describe("countProgress", () => {
 
   it("does not count a tile twice or count tiles outside the project", () => {
     expect(countProgress(firstDone, tiles, [ids[0], 12345])).toBe(1);
+  });
+});
+
+describe("labelClasses", () => {
+  const stats = (attributes: { attribute: string; values: unknown[] }[]) => ({
+    tilestats: { layers: [{ attributes }] },
+  });
+
+  it("returns the single label property and its values, sorted as text", () => {
+    expect(
+      labelClasses(
+        stats([{ attribute: "class", values: ["metal", 3, "concrete"] }]),
+      ),
+    ).toEqual({ property: "class", values: ["3", "concrete", "metal"] });
+  });
+
+  it("returns no classes when labels carry several properties", () => {
+    expect(
+      labelClasses(
+        stats([
+          { attribute: "building", values: ["yes"] },
+          { attribute: "class", values: ["a", "b"] },
+        ]),
+      ),
+    ).toEqual({ property: "", values: [] });
+  });
+
+  it("returns no classes for a layer without properties", () => {
+    expect(labelClasses(stats([]))).toEqual({ property: "", values: [] });
+  });
+
+  it("fails when the file has no tile stats", () => {
+    expect(() => labelClasses({})).toThrow("no tilestats");
   });
 });

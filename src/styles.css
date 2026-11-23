@@ -186,6 +186,17 @@ a:focus-visible {
   color: var(--gray);
   flex: none;
 }
+.summary {
+  margin: -4px 0 0;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--gray);
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  overflow: hidden;
+}
 .meter {
   height: 6px;
   background: var(--track);
@@ -619,10 +630,11 @@ a:focus-visible {
   margin: 10px 0 0;
   padding: 0;
   display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 4px 14px;
-  min-height: 20px;
+  justify-content: safe center;
+  gap: 14px;
+  height: 20px;
+  overflow-x: auto;
+  scrollbar-width: none;
   font-size: 13px;
   line-height: 20px;
   color: var(--dark);
@@ -637,7 +649,7 @@ a:focus-visible {
   width: 12px;
   height: 12px;
   border-radius: 2px;
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow: inset 0 0 0 1px var(--gray);
 }
 .nav {
   display: flex;
