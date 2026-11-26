@@ -93,8 +93,7 @@ export const tileCount = (count: number) =>
   `${count.toLocaleString()} tile${count === 1 ? "" : "s"}`;
 
 export function percent(done: number, total: number): string {
-  const value = total ? Math.floor((done / total) * 100) : 0;
-  return `${done > 0 && value === 0 ? "<1" : value}%`;
+  return `${total ? Math.floor((done / total) * 100) : 0}%`;
 }
 
 export const percentDone = (done: number, total: number) =>

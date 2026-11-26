@@ -9,9 +9,9 @@ describe("percentDone", () => {
     expect(percentDone(12000, 12000)).toBe("100% done");
   });
 
-  it("shows under 1% once any tile is done", () => {
-    expect(percentDone(9, 12000)).toBe("<1% done");
-    expect(percentDone(0, 12000)).toBe("0% done");
+  it("shows a plain percent, without a less-than sign", () => {
+    expect(percentDone(9, 12000)).toBe("0% done");
+    expect(percentDone(600, 12000)).toBe("5% done");
   });
 });
 
