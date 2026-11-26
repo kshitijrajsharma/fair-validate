@@ -1,5 +1,5 @@
 export type Answer = {
-  projectId: number;
+  projectSlug: string;
   tileId: number;
   valid: boolean;
   at: number;
@@ -13,11 +13,14 @@ let database: Promise<IDBDatabase> | undefined;
 
 function open(): Promise<IDBDatabase> {
   database ??= new Promise((resolve, reject) => {
-    const request = indexedDB.open("fair-validate", 2);
-    request.onupgradeneeded = () => {
+    const request = indexedDB.open("fair-validate", 3);
+    request.onupgradeneeded = (event) => {
+      // Entries before version 3 are keyed by the numeric project id, which the app no longer uses.
       for (const name of STORES)
         if (!request.result.objectStoreNames.contains(name))
           request.result.createObjectStore(name);
+        else if (event.oldVersion < 3)
+          request.transaction!.objectStore(name).clear();
     };
     request.onsuccess = () => {
       request.result.onversionchange = () => {
@@ -50,8 +53,8 @@ async function run<T>(
   });
 }
 
-export const answerKey = (projectId: number, tileId: number) =>
-  `${projectId}:${tileId}`;
+export const answerKey = (projectSlug: string, tileId: number) =>
+  `${projectSlug}:${tileId}`;
 
 export const getTile = (key: string) =>
   run<ArrayBuffer | undefined>("tiles", "readonly", (s) => s.get(key));
@@ -69,7 +72,7 @@ export const deleteTile = (key: string) =>
   run("tiles", "readwrite", (s) => s.delete(key));
 
 export async function saveAnswer(answer: Answer): Promise<void> {
-  const key = answerKey(answer.projectId, answer.tileId);
+  const key = answerKey(answer.projectSlug, answer.tileId);
   const db = await open();
   await new Promise<void>((resolve, reject) => {
     const transaction = db.transaction(["answers", "outbox"], "readwrite");
@@ -80,9 +83,9 @@ export async function saveAnswer(answer: Answer): Promise<void> {
   });
 }
 
-export const projectAnswers = (projectId: number) =>
+export const projectAnswers = (projectSlug: string) =>
   run<Answer[]>("answers", "readonly", (s) =>
-    s.getAll(IDBKeyRange.bound(`${projectId}:`, `${projectId}:￿`)),
+    s.getAll(IDBKeyRange.bound(`${projectSlug}:`, `${projectSlug}:￿`)),
   );
 export const pendingAnswers = () =>
   run<Answer[]>("outbox", "readonly", (s) => s.getAll());
@@ -91,7 +94,7 @@ export async function removeSent(answer: Answer): Promise<void> {
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction("outbox", "readwrite");
     const store = tx.objectStore("outbox");
-    const key = answerKey(answer.projectId, answer.tileId);
+    const key = answerKey(answer.projectSlug, answer.tileId);
     const current = store.get(key);
     current.onsuccess = () => {
       if ((current.result as Answer | undefined)?.at === answer.at)

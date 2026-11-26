@@ -15,9 +15,8 @@ async function route(): Promise<void> {
   const mine = ++generation;
   const current = () => mine === generation;
   try {
-    if (kind === "p" && action === "go")
-      await validateScreen(Number(id), current);
-    else if (kind === "p") await projectScreen(Number(id), current);
+    if (kind === "p" && action === "go") await validateScreen(id, current);
+    else if (kind === "p") await projectScreen(id, current);
     else await listScreen(current);
   } catch (error) {
     if (!(error instanceof Error)) throw error;

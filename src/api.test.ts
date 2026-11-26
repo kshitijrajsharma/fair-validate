@@ -41,7 +41,7 @@ describe("reads", () => {
   it("explain that a page was never saved when offline without a copy", async () => {
     vi.stubGlobal("fetch", offline);
 
-    await expect(getProject(2)).rejects.toThrow("not saved yet");
+    await expect(getProject("p2")).rejects.toThrow("not saved yet");
   });
 
   it("turn a 429 into a wait time in minutes", async () => {
@@ -51,13 +51,13 @@ describe("reads", () => {
         new Response(null, { status: 429, headers: { "Retry-After": "363" } }),
     );
 
-    await expect(getProject(2)).rejects.toThrow("Try again in 7 minutes");
+    await expect(getProject("p2")).rejects.toThrow("Try again in 7 minutes");
   });
 
   it("read a missing done.bin as nothing done", async () => {
     vi.stubGlobal("fetch", async () => new Response(null, { status: 404 }));
 
-    expect(await doneBits(2)).toEqual(new Uint8Array());
+    expect(await doneBits("p2")).toEqual(new Uint8Array());
   });
 
   it("serve the saved copy when the server is rate limiting", async () => {
@@ -77,7 +77,7 @@ describe("reads", () => {
         }),
     );
 
-    await expect(getProject(2)).rejects.toThrow("sign-in page");
+    await expect(getProject("p2")).rejects.toThrow("sign-in page");
   });
 
   it("serve the saved copy when the body download times out", async () => {
@@ -102,7 +102,7 @@ describe("reads", () => {
   it("keep the saved done.bin when a proxy answers with an HTML page", async () => {
     const bits = new Uint8Array([0b101]);
     vi.stubGlobal("fetch", async () => new Response(bits));
-    await doneBits(2);
+    await doneBits("p2");
     vi.stubGlobal(
       "fetch",
       async () =>
@@ -111,7 +111,7 @@ describe("reads", () => {
         }),
     );
 
-    expect(await doneBits(2)).toEqual(bits);
+    expect(await doneBits("p2")).toEqual(bits);
   });
 
   it("still show what the network returned when the device is full", async () => {
@@ -136,13 +136,19 @@ describe("reads", () => {
   it("save the list and each project's page and progress for offline in one go", async () => {
     const bits = new Uint8Array([1]);
     const ids = new DataView(new ArrayBuffer(8));
-    const open = { id: 2, title: "Open", status: "published", description: "" };
+    const open = {
+      id: 2,
+      slug: "p2",
+      title: "Open",
+      status: "published",
+      description: "",
+    };
     vi.stubGlobal("fetch", async (url: string) =>
       url.includes("tiles.bin")
         ? new Response(ids.buffer)
         : url.includes("done.bin")
           ? new Response(bits)
-          : url.endsWith("/projects/2/")
+          : url.endsWith("/projects/p2/")
             ? json(open)
             : json({ results: [open] }),
     );
@@ -150,8 +156,8 @@ describe("reads", () => {
     vi.stubGlobal("fetch", offline);
 
     expect((await listProjects()).map((project) => project.id)).toEqual([2]);
-    expect(await getProject(2)).toEqual(open);
-    expect(await doneBits(2)).toEqual(bits);
+    expect(await getProject("p2")).toEqual(open);
+    expect(await doneBits("p2")).toEqual(bits);
   });
 
   it("load each project's description images so the service worker keeps them", async () => {
@@ -166,6 +172,7 @@ describe("reads", () => {
     );
     const described = {
       id: 2,
+      slug: "p2",
       title: "Roofs",
       status: "published",
       description:

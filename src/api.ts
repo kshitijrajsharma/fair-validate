@@ -4,6 +4,7 @@ import { readTileList, unreachable, type Tile } from "./tiles";
 
 export type Project = {
   id: number;
+  slug: string;
   type: "training" | "prediction";
   title: string;
   description: string;
@@ -89,20 +90,20 @@ export async function listProjects(): Promise<Project[]> {
   return page.results.filter((project) => project.status !== "draft");
 }
 
-export const getProject = (id: number) =>
-  readJson<Project>(`${API}/validation/projects/${id}/`);
+export const getProject = (slug: string) =>
+  readJson<Project>(`${API}/validation/projects/${slug}/`);
 
-export const fileUrl = (projectId: number) => (name: string) =>
-  `${API}/validation/projects/${projectId}/files/${name}/`;
+export const fileUrl = (projectSlug: string) => (name: string) =>
+  `${API}/validation/projects/${projectSlug}/files/${name}/`;
 
-export async function tileList(projectId: number): Promise<Tile[]> {
-  const data = await readSaved(fileUrl(projectId)("tiles.bin"));
+export async function tileList(projectSlug: string): Promise<Tile[]> {
+  const data = await readSaved(fileUrl(projectSlug)("tiles.bin"));
   if (!data) throw new ReadError("This project's tiles are not ready yet.");
   return readTileList(data);
 }
 
-export async function doneBits(projectId: number): Promise<Uint8Array> {
-  const data = await readSaved(fileUrl(projectId)("done.bin"));
+export async function doneBits(projectSlug: string): Promise<Uint8Array> {
+  const data = await readSaved(fileUrl(projectSlug)("done.bin"));
   return new Uint8Array(data ?? new ArrayBuffer(0));
 }
 
@@ -114,9 +115,9 @@ export async function saveListForOffline(): Promise<void> {
         new Image().src = url;
     await Promise.all(
       projects.flatMap((project) => [
-        getProject(project.id),
-        tileList(project.id),
-        doneBits(project.id),
+        getProject(project.slug),
+        tileList(project.slug),
+        doneBits(project.slug),
       ]),
     );
   } catch (error) {

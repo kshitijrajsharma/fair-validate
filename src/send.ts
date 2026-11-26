@@ -3,12 +3,12 @@ import type { Answer } from "./store";
 export const API: string = import.meta.env.VITE_API_URL ?? "/api/v1";
 
 export async function postAnswers(
-  projectId: number,
+  projectSlug: string,
   answers: Answer[],
   keepalive = false,
 ): Promise<number> {
   const response = await fetch(
-    `${API}/validation/projects/${projectId}/answers/`,
+    `${API}/validation/projects/${projectSlug}/answers/`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },

@@ -35,20 +35,20 @@ import {
 const FIRST_TILES = 10;
 const BUFFER = 100;
 
-function seedFor(id: number): number {
-  let hash = id;
-  for (const char of guestId())
+function seedFor(slug: string): number {
+  let hash = 0;
+  for (const char of slug + guestId())
     hash = (Math.imul(hash, 31) + char.charCodeAt(0)) | 0;
   return hash;
 }
 
 export async function validateScreen(
-  id: number,
+  slug: string,
   current: Current,
 ): Promise<void> {
-  app.innerHTML = `${bar("", `#/p/${id}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(49)}<span class="skeleton tile"></span>${remember(`legend-${id}`) === "yes" ? `<span class="skeleton legend"></span>` : ""}<div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
-  const project = await getProject(id);
-  const tiles = new ProjectTiles(project.id, fileUrl(project.id));
+  app.innerHTML = `${bar("", `#/p/${slug}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(49)}<span class="skeleton tile"></span>${remember(`legend-${slug}`) === "yes" ? `<span class="skeleton legend"></span>` : ""}<div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
+  const project = await getProject(slug);
+  const tiles = new ProjectTiles(project.slug, fileUrl(project.slug));
   const [{ list, bits, mine }, found] = await Promise.all([
     progress(project),
     project.type === "training"
@@ -61,13 +61,13 @@ export async function validateScreen(
   ]);
   if (!current()) return;
   const classes = found && found.values.length > 1 ? found : undefined;
-  if (found) remember(`legend-${id}`, classes ? "yes" : "no");
+  if (found) remember(`legend-${slug}`, classes ? "yes" : "no");
   const legend = classes ? `<ul class="classes" id="classes"></ul>` : "";
   const byId = new Map(list.map((tile) => [tile.id, tile]));
   const answers = new Map<number, boolean>(
     mine.map((a) => [a.tileId, a.valid]),
   );
-  const queue = tileOrder(list, seedFor(id)).filter(
+  const queue = tileOrder(list, seedFor(slug)).filter(
     (t) => !isDone(bits, t) && !answers.has(t.id),
   );
   const missing = new Set<number>();
@@ -76,7 +76,7 @@ export async function validateScreen(
     .flatMap((answer) => byId.get(answer.tileId) ?? []);
   let position = history.length - 1;
 
-  app.innerHTML = `${bar(project.title, `#/p/${id}`, networkPill(`<span class="counter" id="counter"></span>`))}
+  app.innerHTML = `${bar(project.title, `#/p/${slug}`, networkPill(`<span class="counter" id="counter"></span>`))}
     <section id="screen" aria-label="Swipe right for Yes, left for No, up for the next tile, down for the previous one. Arrow keys work too.">
       <div class="stage">
         <p class="question">${escape(question(project.description))}</p>
@@ -257,7 +257,7 @@ export async function validateScreen(
   const saveAndAdvance = async (tile: Tile, valid: boolean) => {
     hint.hide();
     const entry: Answer = {
-      projectId: id,
+      projectSlug: slug,
       tileId: tile.id,
       valid,
       at: Date.now(),

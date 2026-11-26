@@ -34,8 +34,8 @@ export function syncNow(keepalive = false): Promise<void> {
       const result = await flush({
         pending: pendingAnswers,
         removeSent,
-        post: (projectId, answers) =>
-          postAnswers(projectId, answers, keepalive),
+        post: (projectSlug, answers) =>
+          postAnswers(projectSlug, answers, keepalive),
       });
       failures = result.retry ? failures + 1 : 0;
       if (result.retry) schedule(backoff(failures));

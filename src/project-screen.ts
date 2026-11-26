@@ -34,7 +34,7 @@ async function saveAll(
 ): Promise<string | undefined> {
   let saved = 0;
   for (const tile of list) {
-    if (!current() || remember(`offline-${project.id}`) !== "on") break;
+    if (!current() || remember(`offline-${project.slug}`) !== "on") break;
     if (isDone(bits, tile)) continue;
     try {
       await tiles.save(tile);
@@ -53,12 +53,12 @@ async function saveAll(
 }
 
 export async function projectScreen(
-  id: number,
+  slug: string,
   current: Current,
 ): Promise<void> {
   app.innerHTML = `${bar("", "#/", networkPill())}<section class="scroll" aria-busy="true">${skeleton(24, 6, 26, 120, 120)}</section>`;
-  const project = await getProject(id);
-  const tiles = new ProjectTiles(project.id, fileUrl(project.id));
+  const project = await getProject(slug);
+  const tiles = new ProjectTiles(project.slug, fileUrl(project.slug));
   const { list, bits, mine, done } = await progress(project);
   if (!current()) return;
   const finished = project.status === "finished";
@@ -86,7 +86,7 @@ export async function projectScreen(
       ${
         doneForMe
           ? ""
-          : `<div class="row"><span class="label" title="Available offline">${icons.cloudDownload}<span id="saved"></span></span><button class="toggle" id="offline" aria-pressed="${remember(`offline-${id}`) === "on"}" aria-label="Available offline"></button></div>
+          : `<div class="row"><span class="label" title="Available offline">${icons.cloudDownload}<span id="saved"></span></span><button class="toggle" id="offline" aria-pressed="${remember(`offline-${slug}`) === "on"}" aria-label="Available offline"></button></div>
       <div class="saving" id="saving" hidden><i></i></div>
       ${iosWithoutOffline() ? `<p class="note">Saved tiles work while this page stays open. To open the app offline, open it in Safari and add it to your Home Screen.</p>` : ""}`
       }
@@ -95,7 +95,7 @@ export async function projectScreen(
     </section>
     <footer class="footer">${
       finished
-        ? `<a class="primary-button" href="${fileUrl(id)("results.parquet")}">Download results</a>${backToProjects()}`
+        ? `<a class="primary-button" href="${fileUrl(slug)("results.parquet")}">Download results</a>${backToProjects()}`
         : doneForMe
           ? backToProjects("primary")
           : `<button class="primary-button" id="start">${mine.length ? "Continue" : "Start"}</button>`
@@ -120,7 +120,7 @@ export async function projectScreen(
   if (doneForMe) return;
   const savedLabel = app.querySelector("#saved") as HTMLElement;
   const showSaved = async () => {
-    const count = (await tileKeys(`${id}/imagery/`)).length;
+    const count = (await tileKeys(`${slug}/imagery/`)).length;
     savedLabel.textContent = count
       ? `${tileCount(count)} saved`
       : "Save for offline";
@@ -134,7 +134,7 @@ export async function projectScreen(
   let saving = false;
   const savingBar = app.querySelector("#saving") as HTMLElement;
   const startSaving = () => {
-    if (saving || remember(`offline-${id}`) !== "on") return;
+    if (saving || remember(`offline-${slug}`) !== "on") return;
     saving = true;
     const total = list.filter((tile) => !isDone(bits, tile)).length;
     savingBar.hidden = false;
@@ -157,7 +157,7 @@ export async function projectScreen(
   toggle.addEventListener("click", () => {
     const on = toggle.getAttribute("aria-pressed") !== "true";
     toggle.setAttribute("aria-pressed", String(on));
-    remember(`offline-${id}`, on ? "on" : "off");
+    remember(`offline-${slug}`, on ? "on" : "off");
     startSaving();
   });
   window.addEventListener("online", startSaving);
@@ -169,7 +169,7 @@ export async function projectScreen(
   (app.querySelector("#start") as HTMLButtonElement).addEventListener(
     "click",
     () => {
-      location.hash = `#/p/${id}/go`;
+      location.hash = `#/p/${slug}/go`;
     },
   );
 }

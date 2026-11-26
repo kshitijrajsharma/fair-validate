@@ -96,7 +96,7 @@ export class ProjectTiles {
   private readonly files: Record<Layer, PMTiles>;
 
   constructor(
-    private readonly projectId: number,
+    private readonly projectSlug: string,
     fileUrl: (name: string) => string,
   ) {
     this.files = {
@@ -106,7 +106,7 @@ export class ProjectTiles {
   }
 
   private key(layer: Layer, tile: Tile): string {
-    return `${this.projectId}/${layer}/${tile.id}`;
+    return `${this.projectSlug}/${layer}/${tile.id}`;
   }
 
   async get(layer: Layer, tile: Tile): Promise<ArrayBuffer | undefined> {
@@ -126,7 +126,7 @@ export class ProjectTiles {
   }
 
   async classes(): Promise<LabelClasses> {
-    const key = `${this.projectId}/classes`;
+    const key = `${this.projectSlug}/classes`;
     const saved = await getTile(key);
     if (saved) return JSON.parse(new TextDecoder().decode(saved));
     const found = labelClasses(

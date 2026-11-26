@@ -40,7 +40,7 @@ self.addEventListener("sync", (event) => {
     flush({
       pending: pendingAnswers,
       removeSent,
-      post: (projectId, answers) => postAnswers(projectId, answers),
+      post: (projectSlug, answers) => postAnswers(projectSlug, answers),
     }).then((result) => {
       if (result.retry)
         throw new Error(

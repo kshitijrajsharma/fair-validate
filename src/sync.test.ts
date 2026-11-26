@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Answer } from "./store";
 
 const pending: Answer[] = [
-  { projectId: 1, tileId: 7, valid: true, at: 1, guest: "g" },
+  { projectSlug: "a", tileId: 7, valid: true, at: 1, guest: "g" },
 ];
 const postAnswers = vi.fn(async () => 204);
 
@@ -43,7 +43,7 @@ describe("answered", () => {
       await answered();
       await vi.advanceTimersByTimeAsync(5_000);
 
-      expect(postAnswers).toHaveBeenCalledWith(1, pending, false);
+      expect(postAnswers).toHaveBeenCalledWith("a", pending, false);
     },
   );
 
@@ -54,6 +54,6 @@ describe("answered", () => {
     await expect(answered()).rejects.toThrow("broken");
     await vi.advanceTimersByTimeAsync(5_000);
 
-    expect(postAnswers).toHaveBeenCalledWith(1, pending, false);
+    expect(postAnswers).toHaveBeenCalledWith("a", pending, false);
   });
 });

@@ -44,9 +44,9 @@ export async function progress(
   project: Project,
 ): Promise<{ list: Tile[]; bits: Uint8Array; mine: Answer[]; done: number }> {
   const [list, bits, mine] = await Promise.all([
-    tileList(project.id),
-    doneBits(project.id),
-    projectAnswers(project.id),
+    tileList(project.slug),
+    doneBits(project.slug),
+    projectAnswers(project.slug),
   ]);
   const done = countProgress(
     bits,

@@ -28,7 +28,7 @@ export async function listScreen(current: Current): Promise<void> {
   }
   list.innerHTML = projects
     .map(
-      (project) => `<a class="card" href="#/p/${project.id}">
+      (project) => `<a class="card" href="#/p/${project.slug}">
         <h2>${project.type === "prediction" ? icons.category : icons.building}${escape(project.title)}</h2>
         <p class="summary">${escape(question(project.description))}</p>
         <div data-progress="${project.id}">${skeleton(6)}<div class="meta"><span>&nbsp;</span></div></div></a>`,
@@ -38,13 +38,13 @@ export async function listScreen(current: Current): Promise<void> {
     const slot = list.querySelector(
       `[data-progress="${project.id}"]`,
     ) as HTMLElement;
-    const saved = (await tileKeys(`${project.id}/imagery/`)).length;
+    const saved = (await tileKeys(`${project.slug}/imagery/`)).length;
     progress(project).then(
       ({ list, done }) => {
         const status =
           project.status === "finished"
             ? `<span class="status done">${icons.check}Finished</span>`
-            : saved && remember(`offline-${project.id}`) === "on"
+            : saved && remember(`offline-${project.slug}`) === "on"
               ? `<span class="status">${icons.cloudDownload}Saved offline</span>`
               : "";
         slot.innerHTML = `${meter(done, list.length)}<div class="meta"><span class="meta-start">${percentDone(done, list.length)}${status}</span><span>${contributors(project.respondent_count)}</span></div>`;
