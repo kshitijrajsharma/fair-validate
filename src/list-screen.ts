@@ -56,6 +56,10 @@ export async function listScreen(current: Current): Promise<void> {
           return;
         }
         slot.parentElement?.classList.add("unavailable");
+        slot.parentElement?.setAttribute(
+          "aria-label",
+          `${project.title}, not saved for offline`,
+        );
         slot.remove();
       },
     );

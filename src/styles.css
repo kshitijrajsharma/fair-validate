@@ -25,7 +25,7 @@
   --surface: #ffffff;
   --green: #198155;
   --green-soft: #ecfce5;
-  --yellow: #c69102;
+  --yellow: #8a6500;
   --yellow-soft: #fff8e6;
   --font-body: Archivo, -apple-system, Roboto, Helvetica, Arial, sans-serif;
   --font-display:
@@ -428,6 +428,11 @@ a:focus-visible {
 .skeleton.tile {
   margin-top: 12px;
 }
+.skeleton.legend {
+  height: 20px;
+  width: 60%;
+  margin: 10px auto 0;
+}
 .tile.loading {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
@@ -541,6 +546,9 @@ a:focus-visible {
   font-size: 17px;
   margin: 0 0 12px;
   text-wrap: balance;
+  display: grid;
+  align-content: center;
+  min-height: 2lh;
 }
 .tile {
   position: relative;

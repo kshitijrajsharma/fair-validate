@@ -23,6 +23,7 @@ import {
   networkPill,
   progress,
   question,
+  remember,
   resultsLegend,
   session,
   skeleton,
@@ -45,7 +46,7 @@ export async function validateScreen(
   id: number,
   current: Current,
 ): Promise<void> {
-  app.innerHTML = `${bar("", `#/p/${id}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(25)}<span class="skeleton tile"></span><div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
+  app.innerHTML = `${bar("", `#/p/${id}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(49)}<span class="skeleton tile"></span>${remember(`legend-${id}`) === "yes" ? `<span class="skeleton legend"></span>` : ""}<div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
   const project = await getProject(id);
   const tiles = new ProjectTiles(project.id, fileUrl(project.id));
   const [{ list, bits, mine }, found] = await Promise.all([
@@ -60,6 +61,7 @@ export async function validateScreen(
   ]);
   if (!current()) return;
   const classes = found && found.values.length > 1 ? found : undefined;
+  if (found) remember(`legend-${id}`, classes ? "yes" : "no");
   const legend = classes ? `<ul class="classes" id="classes"></ul>` : "";
   const byId = new Map(list.map((tile) => [tile.id, tile]));
   const answers = new Map<number, boolean>(
