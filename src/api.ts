@@ -110,6 +110,7 @@ export async function saveListForOffline(): Promise<void> {
     const projects = await listProjects();
     await Promise.all(
       projects.flatMap((project) => [
+        getProject(project.id),
         tileList(project.id),
         doneBits(project.id),
       ]),

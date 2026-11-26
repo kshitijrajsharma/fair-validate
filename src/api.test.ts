@@ -133,20 +133,24 @@ describe("reads", () => {
     expect((await listProjects()).map((project) => project.id)).toEqual([2]);
   });
 
-  it("save the list and each project's progress for offline in one go", async () => {
+  it("save the list and each project's page and progress for offline in one go", async () => {
     const bits = new Uint8Array([1]);
     const ids = new DataView(new ArrayBuffer(8));
+    const open = { id: 2, title: "Open", status: "published" };
     vi.stubGlobal("fetch", async (url: string) =>
       url.includes("tiles.bin")
         ? new Response(ids.buffer)
         : url.includes("done.bin")
           ? new Response(bits)
-          : json({ results: [{ id: 2, title: "Open", status: "published" }] }),
+          : url.endsWith("/projects/2/")
+            ? json(open)
+            : json({ results: [open] }),
     );
     await saveListForOffline();
     vi.stubGlobal("fetch", offline);
 
     expect((await listProjects()).map((project) => project.id)).toEqual([2]);
+    expect(await getProject(2)).toEqual(open);
     expect(await doneBits(2)).toEqual(bits);
   });
 
