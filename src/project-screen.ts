@@ -56,7 +56,7 @@ export async function projectScreen(
   id: number,
   current: Current,
 ): Promise<void> {
-  app.innerHTML = `${bar("", "#/", networkPill())}<section class="scroll" aria-busy="true">${skeleton(28, 6, 26, 120, 120)}</section>`;
+  app.innerHTML = `${bar("", "#/", networkPill())}<section class="scroll" aria-busy="true">${skeleton(24, 6, 26, 120, 120)}</section>`;
   const project = await getProject(id);
   const tiles = new ProjectTiles(project.id, fileUrl(project.id));
   const { list, bits, mine, done } = await progress(project);
@@ -69,7 +69,7 @@ export async function projectScreen(
   const doneForMe = finished || leftForMe === 0;
   const left = list.length - done;
   const results = doneForMe
-    ? `<div class="results-block">${mine.length ? `<p class="note">${yourAnswers(answered.values())}</p>` : ""}<canvas class="results" id="results" aria-label="Map of the project's tiles"></canvas>${resultsLegend(mine.length > 0)}</div>`
+    ? `<div class="results-block">${mine.length ? `<p class="note">${yourAnswers(answered.values())}</p>` : ""}<canvas class="results" id="results" aria-label="Map of the project's tiles"></canvas>${resultsLegend}</div>`
     : mine.length
       ? `<p class="note">${yourAnswers(answered.values())}</p>`
       : "";
@@ -102,7 +102,11 @@ export async function projectScreen(
     }</footer>`;
   const resultsCanvas = app.querySelector<HTMLCanvasElement>("#results");
   if (resultsCanvas)
-    drawResults(resultsCanvas, list, answered, (tile) => isDone(bits, tile));
+    drawResults(
+      resultsCanvas,
+      list,
+      (tile) => isDone(bits, tile) || answered.has(tile.id),
+    );
   if (finished) return;
   const pendingLabel = app.querySelector("#pending") as HTMLElement;
   const stopSync = onSync((pending) => {

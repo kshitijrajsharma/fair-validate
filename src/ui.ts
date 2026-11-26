@@ -82,12 +82,7 @@ export function yourAnswers(valid: Iterable<boolean>): string {
 export const backToProjects = (style = "secondary") =>
   `<a class="${style}-button" href="#/">Back to projects</a>`;
 
-export const resultsLegend = (mine: boolean) =>
-  `<p class="legend">${
-    mine
-      ? `<span class="key yes"></span>Your Yes<span class="key no"></span>Your No<span class="key others"></span>Done by others`
-      : `<span class="key others"></span>Done`
-  }<span class="key open"></span>Open</p>`;
+export const resultsLegend = `<p class="legend"><span class="key done"></span>Done<span class="key open"></span>Open</p>`;
 
 export const tileCount = (count: number) =>
   `${count.toLocaleString()} tile${count === 1 ? "" : "s"}`;

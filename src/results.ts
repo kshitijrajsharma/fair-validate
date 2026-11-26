@@ -42,9 +42,7 @@ export function gridLayout(
 }
 
 const COLORS = {
-  yes: "#198155",
-  no: "#d3180c",
-  others: "#687075",
+  done: "#198155",
   open: "#ffffff",
   edge: "#687075",
 };
@@ -52,7 +50,6 @@ const COLORS = {
 export function drawResults(
   canvas: HTMLCanvasElement,
   list: Tile[],
-  answers: Map<number, boolean>,
   isDone: (tile: Tile) => boolean,
   maxHeight = 200,
 ): void {
@@ -71,19 +68,12 @@ export function drawResults(
   const size = cell - gap;
   context.lineWidth = 1;
   for (const { tile, column, row } of grid.cells) {
-    const answer = answers.get(tile.id);
+    const done = isDone(tile);
     const left = column * cell;
     const top = row * cell;
-    context.fillStyle =
-      answer === true
-        ? COLORS.yes
-        : answer === false
-          ? COLORS.no
-          : isDone(tile)
-            ? COLORS.others
-            : COLORS.open;
+    context.fillStyle = done ? COLORS.done : COLORS.open;
     context.fillRect(left, top, size, size);
-    if (answer === undefined && !isDone(tile)) {
+    if (!done) {
       context.strokeStyle = COLORS.edge;
       context.strokeRect(left + 0.5, top + 0.5, size - 1, size - 1);
     }

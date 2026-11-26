@@ -358,14 +358,8 @@ a:focus-visible {
 .key:first-child {
   margin-left: 0;
 }
-.key.yes {
+.key.done {
   background: var(--green);
-}
-.key.no {
-  background: var(--badge-red);
-}
-.key.others {
-  background: var(--gray);
 }
 .key.open {
   background: var(--surface);
@@ -413,17 +407,10 @@ a:focus-visible {
   place-items: center;
   background: var(--green);
   color: var(--surface);
-  animation: pop-in 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
 .end-mark svg {
   width: 26px;
   height: 26px;
-}
-@keyframes pop-in {
-  from {
-    transform: scale(0.3);
-    opacity: 0;
-  }
 }
 .end-actions {
   flex: none;
@@ -786,9 +773,13 @@ a:focus-visible {
     transform: none;
     transition: opacity 0.16s ease;
   }
-  .end-mark {
-    animation: fade-in 0.3s ease;
-  }
+}
+.scroll > :not(.skeleton),
+#screen:not([aria-busy]),
+.footer,
+[data-progress] > :not(.skeleton),
+.end {
+  animation: fade-in 0.15s ease;
 }
 @keyframes fade-in {
   from {
@@ -797,4 +788,7 @@ a:focus-visible {
 }
 .nav .skeleton {
   width: 168px;
+}
+.card.unavailable {
+  opacity: 0.6;
 }

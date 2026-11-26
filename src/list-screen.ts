@@ -1,4 +1,4 @@
-import { listProjects } from "./api";
+import { listProjects, ReadError } from "./api";
 import { icons } from "./icons";
 import { tileKeys } from "./store";
 import {
@@ -31,7 +31,7 @@ export async function listScreen(current: Current): Promise<void> {
       (project) => `<a class="card" href="#/p/${project.id}">
         <h2>${project.type === "prediction" ? icons.category : icons.building}${escape(project.title)}</h2>
         <p class="summary">${escape(question(project.description))}</p>
-        <div data-progress="${project.id}">${meter(0, 1)}<div class="meta"><span>&nbsp;</span></div></div></a>`,
+        <div data-progress="${project.id}">${skeleton(6)}<div class="meta"><span>&nbsp;</span></div></div></a>`,
     )
     .join("");
   for (const project of projects) {
@@ -49,8 +49,14 @@ export async function listScreen(current: Current): Promise<void> {
               : "";
         slot.innerHTML = `${meter(done, list.length)}<div class="meta"><span class="meta-start">${percentDone(done, list.length)}${status}</span><span>${contributors(project.respondent_count)}</span></div>`;
       },
-      (error: Error) => {
-        slot.innerHTML = `<p class="note">${escape(error.message)}</p>`;
+      (error: unknown) => {
+        if (!(error instanceof ReadError)) throw error;
+        if (navigator.onLine) {
+          slot.innerHTML = `<p class="note">${escape(error.message)}</p>`;
+          return;
+        }
+        slot.parentElement?.classList.add("unavailable");
+        slot.remove();
       },
     );
   }

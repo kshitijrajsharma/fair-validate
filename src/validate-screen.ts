@@ -45,7 +45,7 @@ export async function validateScreen(
   id: number,
   current: Current,
 ): Promise<void> {
-  app.innerHTML = `${bar("", `#/p/${id}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(22)}<span class="skeleton tile"></span><div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
+  app.innerHTML = `${bar("", `#/p/${id}`, "")}<section id="screen" aria-busy="true"><div class="stage">${skeleton(25)}<span class="skeleton tile"></span><div class="nav">${skeleton(44)}</div></div><div class="answers">${skeleton(58, 58)}</div></section>`;
   const project = await getProject(id);
   const tiles = new ProjectTiles(project.id, fileUrl(project.id));
   const [{ list, bits, mine }, found] = await Promise.all([
@@ -173,8 +173,8 @@ export async function validateScreen(
         ${answers.size ? `<p>${yourAnswers(answers.values())}</p>` : ""}
         ${skipped ? `<p class="note">${tileCount(skipped)} skipped; others will answer them.</p>` : ""}
         ${offlineLeft ? `<p class="note">More tiles load when you are back online.</p>` : ""}
-        <canvas class="results" id="results" aria-label="Map of your answers"></canvas>
-        ${resultsLegend(answers.size > 0)}
+        <canvas class="results" id="results" aria-label="Map of the project's tiles"></canvas>
+        ${resultsLegend}
       </div>
       <div class="end-actions">${
         offlineLeft
@@ -185,8 +185,7 @@ export async function validateScreen(
     drawResults(
       end.querySelector("#results") as HTMLCanvasElement,
       list,
-      answers,
-      (tile) => isDone(bits, tile),
+      (tile) => isDone(bits, tile) || answers.has(tile.id),
       280,
     );
   };
