@@ -211,7 +211,7 @@ export async function validateScreen(
       $("#classes").innerHTML = [...colors]
         .map(
           ([value, color]) =>
-            `<li><i style="background:${color}"></i>${escape(value.replaceAll("_", " ").replaceAll(";", " + "))}</li>`,
+            `<li><i style="--swatch:${color}"></i>${escape(value.replaceAll("_", " ").replaceAll(";", " + "))}</li>`,
         )
         .join("");
     tileBox.classList.remove("loading");

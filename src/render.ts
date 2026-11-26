@@ -9,7 +9,7 @@ const CLASS_COLORS = [
   "#00e5ff",
   "#ffd60a",
   "#ffffff",
-  "#b6ff00",
+  "#ff8c00",
   "#ff3df5",
 ];
 
@@ -63,6 +63,8 @@ export async function drawTile(
     : [];
   const colors = classes ? classColors(classes, present) : new Map();
   context.lineWidth = Math.max(2, canvas.width / 170);
+  context.shadowColor = "rgba(0, 0, 0, 0.7)";
+  context.shadowBlur = context.lineWidth;
   for (const { feature, scale } of features) {
     const color = colors.get(classOf(feature)) ?? LABEL_COLOR;
     context.strokeStyle = color;
