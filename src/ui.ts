@@ -92,8 +92,21 @@ export const resultsLegend = (mine: boolean) =>
 export const tileCount = (count: number) =>
   `${count.toLocaleString()} tile${count === 1 ? "" : "s"}`;
 
+export function percent(done: number, total: number): string {
+  const value = total ? Math.floor((done / total) * 100) : 0;
+  return `${done > 0 && value === 0 ? "<1" : value}%`;
+}
+
+export const percentDone = (done: number, total: number) =>
+  `${percent(done, total)} done`;
+
+export const contributors = (count: number | undefined) =>
+  count === undefined
+    ? ""
+    : `${count.toLocaleString()} contributor${count === 1 ? "" : "s"}`;
+
 export function meter(done: number, total: number): string {
-  return `<div class="meter"><i style="width:${total ? Math.round((done / total) * 100) : 0}%"></i></div>`;
+  return `<div class="meter"><i style="width:${total ? Math.floor((done / total) * 100) : 0}%"></i></div>`;
 }
 
 // iOS browsers without Apple's browser entitlement have no service workers (firt.dev/ios-14), so check for the API itself.

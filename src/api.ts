@@ -9,6 +9,7 @@ export type Project = {
   description: string;
   answers_needed: number;
   status: "draft" | "published" | "finished";
+  respondent_count?: number;
 };
 
 export class ReadError extends Error {}

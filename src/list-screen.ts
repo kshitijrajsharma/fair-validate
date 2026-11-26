@@ -7,11 +7,12 @@ import {
   escape,
   meter,
   networkPill,
+  contributors,
+  percentDone,
   progress,
   question,
   remember,
   skeleton,
-  tileCount,
   type Current,
 } from "./ui";
 
@@ -45,8 +46,8 @@ export async function listScreen(current: Current): Promise<void> {
             ? `<span class="status done">${icons.check}Finished</span>`
             : saved && remember(`offline-${project.id}`) === "on"
               ? `<span class="status">${icons.cloudDownload}Saved offline</span>`
-              : "<span></span>";
-        slot.innerHTML = `${meter(done, list.length)}<div class="meta"><span>${done.toLocaleString()} of ${tileCount(list.length)}</span>${status}</div>`;
+              : "";
+        slot.innerHTML = `${meter(done, list.length)}<div class="meta"><span class="meta-start">${percentDone(done, list.length)}${status}</span><span>${contributors(project.respondent_count)}</span></div>`;
       },
       (error: Error) => {
         slot.innerHTML = `<p class="note">${escape(error.message)}</p>`;

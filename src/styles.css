@@ -215,6 +215,11 @@ a:focus-visible {
   font-size: 13px;
   color: var(--gray);
 }
+.meta-start {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+}
 .status {
   display: inline-flex;
   align-items: center;

@@ -13,6 +13,7 @@ import {
   markdown,
   meter,
   networkPill,
+  percent,
   progress,
   remember,
   resultsLegend,
@@ -79,7 +80,7 @@ export async function projectScreen(
       <div class="meta"><span>${finished ? `${done.toLocaleString()} of ${tileCount(list.length)} done` : `${tileCount(left)} left`}</span>${
         finished
           ? `<span class="status done">${icons.check}Finished</span>`
-          : `<span>${list.length ? Math.round((done / list.length) * 100) : 0}%</span>`
+          : `<span>${percent(done, list.length)}</span>`
       }</div>
       ${results}
       ${
@@ -97,7 +98,7 @@ export async function projectScreen(
         ? `<a class="primary-button" href="${fileUrl(id)("results.parquet")}">Download results</a>${backToProjects()}`
         : doneForMe
           ? backToProjects("primary")
-          : `<button class="primary-button" id="start">${mine.length ? `Continue (${leftForMe.toLocaleString()} left)` : "Start"}</button>`
+          : `<button class="primary-button" id="start">${mine.length ? "Continue" : "Start"}</button>`
     }</footer>`;
   const resultsCanvas = app.querySelector<HTMLCanvasElement>("#results");
   if (resultsCanvas)
