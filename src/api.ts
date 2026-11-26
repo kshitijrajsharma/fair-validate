@@ -26,6 +26,7 @@ function statusMessage(response: Response): string {
 }
 
 const READ_TIMEOUT_MS = 10_000;
+const MARKDOWN_IMAGE = /!\[[^\]]*\]\((\S+?)(?:\s+"[^"]*")?\)/g;
 
 const notHtml = (response: Response) =>
   !(response.headers.get("Content-Type")?.includes("text/html") ?? false);
@@ -108,6 +109,9 @@ export async function doneBits(projectId: number): Promise<Uint8Array> {
 export async function saveListForOffline(): Promise<void> {
   try {
     const projects = await listProjects();
+    for (const project of projects)
+      for (const [, url] of project.description.matchAll(MARKDOWN_IMAGE))
+        new Image().src = url;
     await Promise.all(
       projects.flatMap((project) => [
         getProject(project.id),

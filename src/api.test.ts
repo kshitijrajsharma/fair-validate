@@ -136,7 +136,7 @@ describe("reads", () => {
   it("save the list and each project's page and progress for offline in one go", async () => {
     const bits = new Uint8Array([1]);
     const ids = new DataView(new ArrayBuffer(8));
-    const open = { id: 2, title: "Open", status: "published" };
+    const open = { id: 2, title: "Open", status: "published", description: "" };
     vi.stubGlobal("fetch", async (url: string) =>
       url.includes("tiles.bin")
         ? new Response(ids.buffer)
@@ -152,6 +152,37 @@ describe("reads", () => {
     expect((await listProjects()).map((project) => project.id)).toEqual([2]);
     expect(await getProject(2)).toEqual(open);
     expect(await doneBits(2)).toEqual(bits);
+  });
+
+  it("load each project's description images so the service worker keeps them", async () => {
+    const loaded: string[] = [];
+    vi.stubGlobal(
+      "Image",
+      class {
+        set src(url: string) {
+          loaded.push(url);
+        }
+      },
+    );
+    const described = {
+      id: 2,
+      title: "Roofs",
+      status: "published",
+      description:
+        'Is the roof right?\n\n| Yes | No |\n| :-: | :-: |\n| ![A metal roof](https://cdn.example.org/yes.webp) | ![A wrong roof](https://cdn.example.org/no.webp "Wrong") |\n\n[A link](https://tasks.example.org/projects/1)',
+    };
+    vi.stubGlobal("fetch", async (url: string) =>
+      url.endsWith(".bin/")
+        ? new Response(new ArrayBuffer(0))
+        : json({ results: [described] }),
+    );
+
+    await saveListForOffline();
+
+    expect(loaded).toEqual([
+      "https://cdn.example.org/yes.webp",
+      "https://cdn.example.org/no.webp",
+    ]);
   });
 
   it("serve the saved copy when Safari aborts a timed-out read", async () => {

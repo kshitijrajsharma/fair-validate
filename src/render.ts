@@ -6,11 +6,11 @@ import type { LabelClasses } from "./tiles";
 const LABEL_COLOR = "#d63f40";
 const CLASS_COLORS = [
   "#d63f40",
-  "#0065d0",
-  "#c69102",
+  "#00e5ff",
+  "#ffd60a",
   "#ffffff",
-  "#198155",
-  "#2c3038",
+  "#b6ff00",
+  "#ff3df5",
 ];
 
 // Each class keeps its own colour; a tile whose classes share one moves the later class to the next free colour.
